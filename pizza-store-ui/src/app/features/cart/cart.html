@@ -1,0 +1,130 @@
+<div class="h-full bg-[#FFF8EE] border-r border-white flex flex-col shadow-xl min-w-[280px] w-[320px]">
+  <div class="p-4 border-b border-orange-100 flex-shrink-0">
+    <h2 class="text-xl font-bold text-orange-500 flex items-center gap-2">
+      <span class="text-2xl">🛒</span> Giỏ hàng của bạn
+    </h2>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+    @if (cartItems.length === 0) {
+    <div class="text-center text-orange-500 mt-10">
+      Giỏ hàng đang trống
+    </div>
+    }
+
+    @for (item of cartItems; track $index) {
+    <div class="bg-white border border-orange-100 rounded-xl p-3 relative group">
+      <button (click)="removeItem($index)"
+        class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+
+      <div class="flex gap-3">
+        <img
+          [src]="(item.product?.imageUrl || item.combo?.imageUrl) || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=400'"
+          class="w-16 h-16 object-cover rounded-lg">
+        <div class="flex-1">
+          @if (item.product) {
+          <h3 class="font-semibold text-slate-800 text-sm line-clamp-1">{{item.product.name}}</h3>
+          @if(item.sizeName) {
+          <p class="text-xs text-slate-800">Size: {{item.sizeName}}</p>
+          }
+          @if(item.toppings && item.toppings.length > 0) {
+          <p class="text-[10px] text-slate-800 line-clamp-1">+ {{item.toppings.length}} topping</p>
+          }
+          }
+          @if (item.combo) {
+          <h3 class="font-semibold text-slate-800 text-sm line-clamp-1">[Combo] {{item.combo.name}}</h3>
+          <p class="text-[10px] text-slate-600 line-clamp-2">{{item.combo.description}}</p>
+          }
+
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-orange-400 font-bold text-sm">{{item.price | number:'1.0-0'}}đ</span>
+
+            <div class="flex items-center bg-orange-50 rounded-lg border border-orange-200 overflow-hidden">
+              <button (click)="updateQuantity($index, item.quantity - 1)"
+                class="px-2 py-0.5 text-orange-500 hover:bg-orange-200 hover:text-orange-700 transition font-medium">-</button>
+              <span
+                class="px-2 py-0.5 text-xs text-slate-800 font-medium min-w-[24px] text-center">{{item.quantity}}</span>
+              <button (click)="updateQuantity($index, item.quantity + 1)"
+                class="px-2 py-0.5 text-orange-500 hover:bg-orange-200 hover:text-orange-700 transition font-medium">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div
+    class="p-4 bg-white/95 backdrop-blur flex-shrink-0 shadow-[0_-4px_15px_-3px_rgba(0,0,0,0.05)] rounded-t-2xl z-10">
+    <!-- Coupon Section -->
+    <div class="mb-4">
+      <!-- Available Coupons List -->
+      @if (availableCoupons.length > 0) {
+      <div class="mb-3">
+        <label class="text-[11px] text-slate-500 font-semibold mb-2 block uppercase tracking-wider">Mã giảm giá có
+          sẵn:</label>
+        <div class="flex gap-2 overflow-x-auto p-2 scrollbar-thin">
+          @for (coupon of availableCoupons; track coupon.id) {
+          <button (click)="selectCoupon(coupon.code)" [class.ring-2]="appliedCoupon?.code === coupon.code"
+            [class.ring-orange-500]="appliedCoupon?.code === coupon.code"
+            class="flex-shrink-0 bg-orange-50 hover:bg-orange-100 border border-orange-100 rounded-lg px-3 py-1.5 text-left transition cursor-pointer group">
+            <div class="text-orange-600 font-bold text-[13px] group-hover:text-orange-700">{{coupon.code}}</div>
+            <div class="text-[11px] text-orange-600/70">{{coupon.discountType === 'AMOUNT' ? (coupon.discountValue |
+              number:'1.0-0') + 'đ' : coupon.discountValue + '%'}}</div>
+          </button>
+          }
+        </div>
+      </div>
+      }
+
+      <div class="flex gap-2">
+        <input type="text" [(ngModel)]="couponInput" placeholder="Nhập mã giảm giá..."
+          class="flex-1 bg-gray-50 border border-gray-200 text-slate-800 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-400 focus:bg-white transition uppercase placeholder-gray-400">
+
+        @if (appliedCoupon) {
+        <button (click)="removeCoupon()"
+          class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-medium rounded-lg px-4 py-2 text-sm transition cursor-pointer">
+          Hủy
+        </button>
+        } @else {
+        <button (click)="applyCoupon()" [disabled]="!couponInput.trim() || subTotal === 0"
+          class="bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-200 disabled:bg-gray-100 disabled:border-gray-100 disabled:text-gray-400 font-medium rounded-lg px-4 py-2 text-sm transition cursor-pointer">
+          Áp dụng
+        </button>
+        }
+      </div>
+      @if (couponError) {
+      <p class="text-red-500 text-xs mt-1">{{couponError}}</p>
+      }
+      @if (appliedCoupon) {
+      <p class="text-green-600 text-xs mt-1">Đã áp dụng mã: {{appliedCoupon.description || 'Thành công'}}</p>
+      }
+    </div>
+
+    <!-- Totals -->
+    <div class="space-y-2 mb-4 text-sm bg-orange-50/50 p-3 rounded-xl border border-orange-50">
+      <div class="flex justify-between items-center">
+        <span class="text-slate-500">Tạm tính:</span>
+        <span class="text-slate-800 font-medium">{{subTotal | number:'1.0-0'}}đ</span>
+      </div>
+
+      @if (discountAmount > 0) {
+      <div class="flex justify-between items-center text-green-600">
+        <span>Giảm giá:</span>
+        <span class="font-medium">-{{discountAmount | number:'1.0-0'}}đ</span>
+      </div>
+      }
+
+      <div class="flex justify-between items-center pt-2 mt-1 border-t border-orange-100/50">
+        <span class="text-slate-800 font-semibold">Tổng cộng:</span>
+        <span class="text-xl font-black text-orange-500">{{finalTotal | number:'1.0-0'}}đ</span>
+      </div>
+    </div>
+
+    <button (click)="goToCheckout()" [disabled]="cartItems.length === 0"
+      class="w-full py-3 bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-400 text-white font-bold rounded-xl transition duration-150 shadow-md shadow-orange-500/20 flex justify-center items-center gap-2 cursor-pointer">
+      <span>Thanh Toán</span>
+      <span>➜</span>
+    </button>
+  </div>
+</div>

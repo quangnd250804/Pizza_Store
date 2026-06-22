@@ -1,0 +1,221 @@
+<div class="h-screen w-full overflow-hidden bg-linear-to-r from-orange-400 to-yellow-200 font-sans flex flex-col">
+  <app-header></app-header>
+  <div class="flex flex-1 overflow-hidden">
+    <app-cart class="hidden md:block w-[320px] shrink-0 z-40"></app-cart>
+    <div class="flex-1 overflow-y-auto scrollbar-thin">
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="flex justify-center mb-10">
+      <div class="bg-white/15 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 flex space-x-2 shadow-lg">
+        <button
+          (click)="currentTab = 'menu'"
+          [class]="currentTab === 'menu'
+        ? 'bg-red-500 text-white shadow-md font-semibold'
+        : 'text-slate-700 hover:text-slate-900 hover:bg-white/10'"
+          class="px-6 py-3 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2">
+
+          <span></span>
+          <span>Thực Đơn Gọi Món</span>
+        </button>
+
+        <button
+          (click)="currentTab = 'combo'"
+          [class]="currentTab === 'combo'
+        ? 'bg-red-500 text-white shadow-md font-semibold'
+        : 'text-slate-700 hover:text-slate-900 hover:bg-white/10'"
+          class="px-6 py-3 rounded-xl text-sm transition-all duration-300 flex items-center space-x-2">
+          <span></span>
+          <span>Combo Ưu Đãi</span>
+        </button>
+      </div>
+    </div>
+
+    @if (currentTab === 'menu') {
+      <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
+        <button (click)="loadMenu('')"
+                [class]="selectedCategoryCode === ''
+                 ? 'text-white hover:text-slate-900 hover:bg-white/10 font-semibold'
+                 : 'bg-slate-800/70 text-white border-slate-800 hover:border-slate-700'"
+                class="px-5 py-2.5 rounded-xl text-xs border transition duration-150 whitespace-nowrap">
+           Tất Cả Món
+        </button>
+
+        @for (cat of categories; track cat.id) {
+          <button (click)="loadMenu(cat.code)"
+                  [class]="selectedCategoryCode === cat.code
+                 ? 'text-white hover:text-slate-900 hover:bg-white/10 font-semibold'
+                 : 'bg-slate-800/70 text-white border-slate-800 hover:border-slate-700'"
+                  class="px-5 py-2.5 rounded-xl text-xs border transition duration-150 whitespace-nowrap flex items-center space-x-1.5">
+            <span>{{ cat.name }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    @if (currentTab === 'menu') {
+      @if (products.length === 0) {
+        <div class="text-center py-16 bg-slate-900 rounded-3xl border border-slate-800">
+          <p class="text-slate-400 text-sm">Hạng mục này hiện tại đang được đầu bếp cập nhật món mới...</p>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @for (product of products; track product.id) {
+          <div
+            class="group bg-slate-900 rounded-3xl border border-slate-800 hover:border-slate-700/80 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-950/10">
+
+            <div class="relative pt-[70%] bg-slate-950 overflow-hidden">
+              <img [src]="product.imageUrl || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=400'"
+                   [alt]="product.name"
+                   class="absolute inset-0 w-100 h-100 object-cover group-hover:scale-105 transition-transform duration-500">
+              @if (!product.isAvailable) {
+                <span
+                  class="absolute top-3 right-3 bg-red-600/90 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md backdrop-blur-sm">
+                  Hết hàng
+                </span>
+              }
+            </div>
+
+            <div class="p-5 grow flex flex-col justify-between">
+              <div class="mb-4">
+                <h3
+                  class="text-base font-bold text-slate-100 group-hover:text-orange-400 transition duration-150 line-clamp-1">
+                  {{ product.name }}
+                </h3>
+                <p class="text-slate-400 text-xs mt-1.5 line-clamp-2 min-h-8">
+                  {{ product.description }}
+                </p>
+              </div>
+
+              @if (product.variants && product.variants.length > 0) {
+                <div class="mb-5">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Chọn kích cỡ:</p>
+                  <div class="flex space-x-1.5">
+                    @for (variant of product.variants; track variant.id) {
+                      <button (click)="onSizeChange(product.id, variant)"
+                              [class]="selectedVariants[product.id]?.id === variant.id
+                             ? 'bg-orange-500/20 text-orange-400 border-orange-500/60 font-bold'
+                             : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                              class="flex-1 text-center py-2 border rounded-xl text-xs transition duration-150">
+                        {{ variant.sizeCode }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (product.variants && product.variants.length > 0 && toppings.length > 0) {
+                <div class="mb-5 mt-4, pt-3 border-t border-slate-800/60">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Thêm topping:</p>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    @for (topping of toppings; track topping.id) {
+                      <button (click)="onToppingToggle(product.id, topping)"
+                              [disabled]="!topping.isAvailable"
+                              [class]="isToppingSelected(product.id, topping.id)
+                   ? 'bg-orange-500/10 text-orange-400 border-orange-500/50 font-medium'
+                   : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'"
+                              class="flex justify-between items-center px-2.5 py-1.5 border rounded-xl text-[11px] transition duration-150 disabled:opacity-30">
+
+                        <div class="flex items-center space-x-1.5">
+                          @if (isToppingSelected(product.id, topping.id)) {
+                            <span class="text-orange-500 font-bold">✓</span>
+                          }
+                          <span class="line-clamp-1">{{ topping.name }}</span>
+                        </div>
+
+                        <span class="text-slate-500 font-mono text-[10px]">+{{ topping.price / 1000 }}k</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
+                <div class="flex flex-col">
+                  <span class="text-lg font-black text-orange-400">
+                    {{ (selectedVariants[product.id]?.price || 0) | number:'1.0-0' }}
+                    <span class="text-xs font-normal text-slate-500">đ</span>
+                  </span>
+                </div>
+
+                <button (click)="addToCart(product)" [disabled]="!product.isAvailable"
+                        class="px-4 py-2 bg-slate-850 hover:bg-linear-to-r hover:from-orange-500 hover:to-red-600 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold rounded-xl border border-slate-700/60 hover:border-transparent transition duration-150 flex items-center space-x-1">
+                  <span>➕ Thêm</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="flex justify-center items-center space-x-2 mt-10">
+          <button (click)="changePage(currentPage - 1)"
+                  [disabled]="currentPage === 1"
+                  class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700">
+            Trang Trước
+          </button>
+
+          <div class="flex items-center space-x-1 px-4">
+             <span class="text-sm text-slate-400">Trang <span class="text-orange-400 font-bold">{{ currentPage }}</span> / {{ totalPages }}</span>
+          </div>
+
+          <button (click)="changePage(currentPage + 1)"
+                  [disabled]="currentPage === totalPages"
+                  class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700">
+            Trang Sau
+          </button>
+        </div>
+      }
+    }
+
+    @if (currentTab === 'combo') {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (combo of combos; track combo.id) {
+          <div
+            class="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden flex flex-col sm:flex-row h-full transition-all duration-300 hover:border-slate-700">
+
+            <div class="relative w-100 sm:w-48 h-48 sm:h-auto bg-slate-950 shrink-0">
+              <img [src]="combo.imageUrl || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=400'"
+                   [alt]="combo.name"
+                   class="w-100 h-100 object-cover">
+            </div>
+
+            <div class="p-6 grow flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start">
+                  <h3 class="text-lg font-bold text-slate-100">{{ combo.name }}</h3>
+                  <span
+                    class="bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold uppercase px-2 py-0.5 rounded">Combo</span>
+                </div>
+                <p class="text-slate-400 text-xs mt-2 mb-4">{{ combo.description }}</p>
+
+                <div class="space-y-1.5 mb-4">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Bao gồm các món:</p>
+                  @for (item of combo.details; track item.id) {
+                    <div class="flex items-center text-xs text-slate-300">
+                      <span class="text-orange-500 mr-1.5">✓</span>
+                      <span>{{ item.quantity }}x {{ item.productName }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+              <span class="text-xl font-black text-red-400">
+                {{ combo.price | number:'1.0-0' }} <span class="text-xs font-normal text-slate-500">đ</span>
+              </span>
+                <button (click)="addComboToCart(combo)" [disabled]="!combo.isAvailable"
+                        class="px-5 py-2.5 bg-linear-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:from-slate-800 disabled:to-slate-800 text-white text-xs font-bold rounded-xl transition duration-150 shadow-md">
+                  Đặt Combo
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+      </main>
+    </div>
+  </div>
+</div>

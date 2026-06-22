@@ -1,0 +1,21 @@
+<div class="h-screen w-full bg-slate-900 flex flex-col items-center justify-center font-sans">
+  <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700 text-center">
+    @if (status === 'success') {
+      <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Thanh toán thành công!</h2>
+      <p class="text-slate-400 mb-6">Cảm ơn bạn đã đặt hàng. Đơn hàng đang được xử lý.</p>
+    } @else {
+      <div class="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Thanh toán thất bại</h2>
+      <p class="text-slate-400 mb-6">Đã xảy ra lỗi hoặc bạn đã hủy giao dịch. Vui lòng thử lại.</p>
+    }
+    
+    <button routerLink="/" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200">
+      Trở về trang chủ
+    </button>
+  </div>
+</div>
