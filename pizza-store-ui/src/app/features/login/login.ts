@@ -55,7 +55,11 @@ export class Login implements OnInit {
 
           this.toastService.showSuccess('Đăng nhập thành công!Chào mừng bạn đến với Pizza Store');
 
-          this.router.navigate(['/']);
+          if (this.auth.isAdmin()) {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         }else{
           this.errorMessage = response.message || 'Đăng nhập thất bại';
         }

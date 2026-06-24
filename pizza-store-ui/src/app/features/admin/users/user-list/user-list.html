@@ -1,0 +1,66 @@
+<div class="bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Danh sách người dùng</h2>
+    <button (click)="openCreateForm()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      + Thêm nhân viên
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="p-3 font-semibold">ID</th>
+          <th class="p-3 font-semibold">Tên đăng nhập</th>
+          <th class="p-3 font-semibold">Họ tên</th>
+          <th class="p-3 font-semibold">Email</th>
+          <th class="p-3 font-semibold">Quyền</th>
+          <th class="p-3 font-semibold">Trạng thái</th>
+          <th class="p-3 font-semibold">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3">{{ user.id }}</td>
+          <td class="p-3">{{ user.username }}</td>
+          <td class="p-3">{{ user.fullName }}</td>
+          <td class="p-3">{{ user.email }}</td>
+          <td class="p-3">
+            @for (role of user.roles; track role.roleName) {
+            <span class="inline-block bg-gray-200 rounded px-2 py-1 text-xs mr-1">
+              {{ role.roleName }}
+            </span>
+            }
+          </td>
+          <td class="p-3">
+            <span [class]="user.active ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
+              {{ user.active ? 'Hoạt động' : 'Bị khóa' }}
+            </span>
+          </td>
+          <td class="p-3">
+            <button (click)="toggleStatus(user)" 
+                    [class]="user.active ? 'bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition' : 'bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition'">
+              {{ user.active ? 'Khóa' : 'Mở khóa' }}
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between items-center mt-4">
+    <button (click)="previousPage()" [disabled]="currentPage === 1" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+      Trước
+    </button>
+    <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+      Sau
+    </button>
+  </div>
+</div>
+
+@if (showForm) {
+<app-user-form (close)="closeForm($event)"></app-user-form>
+}

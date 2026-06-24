@@ -56,4 +56,18 @@ export class Auth {
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
   }
+
+  isAdmin(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(base64));
+      // Spring Security thường lưu danh sách roles dưới trường 'scope' (ví dụ "ROLE_ADMIN ROLE_CUSTOMER")
+      return decoded.scope && decoded.scope.includes('ADMIN');
+    } catch (e) {
+      return false;
+    }
+  }
 }

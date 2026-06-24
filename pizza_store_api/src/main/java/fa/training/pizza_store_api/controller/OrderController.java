@@ -64,4 +64,29 @@ public class OrderController {
         orderService.cancelOrder(id, userId);
         return ApiResponse.success("Đã hủy đơn hàng thành công");
     }
+
+    @GetMapping("/admin")
+    public ApiResponse<fa.training.pizza_store_api.dto.PageResponse<fa.training.pizza_store_api.dto.OrderResponse>> getAllOrdersAdmin(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ApiResponse.success(orderService.getAllOrdersAdmin(search, status, paymentMethod, startDate, endDate, sortBy, sortDirection, page, limit));
+    }
+
+    @GetMapping("/admin/{id}")
+    public ApiResponse<fa.training.pizza_store_api.dto.OrderResponse> getOrderByIdAdmin(@PathVariable Integer id) {
+        return ApiResponse.success(orderService.getOrderByIdAdmin(id));
+    }
+
+    @PutMapping("/admin/{id}/status")
+    public ApiResponse<String> updateOrderStatusAdmin(@PathVariable Integer id, @RequestParam String status) {
+        orderService.updateOrderStatusAdmin(id, status);
+        return ApiResponse.success("Cập nhật trạng thái đơn hàng thành công");
+    }
 }

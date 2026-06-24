@@ -1,0 +1,64 @@
+<div class="bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Quản lý Sản phẩm (Product)</h2>
+    <button (click)="openCreateForm()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      + Thêm sản phẩm
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="p-3 font-semibold w-16">ID</th>
+          <th class="p-3 font-semibold w-24">Ảnh</th>
+          <th class="p-3 font-semibold">Tên sản phẩm</th>
+          <th class="p-3 font-semibold">Danh mục (ID)</th>
+          <th class="p-3 font-semibold">Giá (Cơ bản)</th>
+          <th class="p-3 font-semibold">Trạng thái</th>
+          <th class="p-3 font-semibold text-center">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (prod of products; track prod.id) {
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" (click)="openEditForm(prod)">
+          <td class="p-3">{{ prod.id }}</td>
+          <td class="p-3">
+            @if (prod.imageUrl) {
+            <img [src]="prod.imageUrl" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+            }
+          </td>
+          <td class="p-3">{{ prod.name }}</td>
+          <td class="p-3">{{ prod.categoryId }}</td>
+          <td class="p-3">
+            @if (prod.variants && prod.variants.length > 0) {
+            <span>{{ prod.variants[0].price | number }}đ</span>
+            } @else {
+            <span>Chưa có giá</span>
+            }
+          </td>
+          <td class="p-3">
+            <span [class]="prod.isAvailable ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
+              {{ prod.isAvailable ? 'Còn hàng' : 'Hết hàng' }}
+            </span>
+          </td>
+          <td class="p-3 text-center space-x-2" (click)="$event.stopPropagation()">
+            <button (click)="openEditForm(prod)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm transition">Sửa</button>
+            <button (click)="deleteProduct(prod.id)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">Xóa</button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between items-center mt-4">
+    <button (click)="previousPage()" [disabled]="currentPage === 1" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Trước</button>
+    <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Sau</button>
+  </div>
+</div>
+
+@if (showForm) {
+<app-product-form [product]="selectedProduct" (close)="closeForm($event)"></app-product-form>
+}

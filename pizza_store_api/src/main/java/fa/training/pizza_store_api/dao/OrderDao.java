@@ -1,8 +1,6 @@
 package fa.training.pizza_store_api.dao;
 
-import fa.training.pizza_store_api.config.rowMapper.OrderDetailResponseRowMapper;
-import fa.training.pizza_store_api.config.rowMapper.OrderRowMapper;
-import fa.training.pizza_store_api.config.rowMapper.OrderToppingResponseRowMapper;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import fa.training.pizza_store_api.dto.OrderDetailResponse;
 import fa.training.pizza_store_api.dto.OrderToppingResponse;
 import fa.training.pizza_store_api.model.Order;
@@ -125,13 +123,13 @@ public class OrderDao {
         int offset = (page - 1) * limit;
         sql += " ORDER BY created_at DESC OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
         
-        return jdbcTemplate.query(sql, new OrderRowMapper(), userId);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Order.class), userId);
     }
 
     public Order findById(Integer orderId) {
         String sql = "SELECT * FROM orders WHERE id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new OrderRowMapper(), orderId);
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Order.class), orderId);
         } catch (org.springframework.dao.EmptyResultDataAccessException e) {
             return null;
         }
@@ -140,14 +138,14 @@ public class OrderDao {
     public List<OrderDetailResponse> findOrderDetails(Integer orderId) {
         String sql = "SELECT od.id, od.order_id, od.product_id, od.combo_id, od.quantity, od.price, " +
                 "od.size_id, s.name AS size_name, " +
-                "p.name AS product_name, p.image_url AS product_image, " +
-                "c.name AS combo_name, c.image_url AS combo_image " +
+                "p.name AS product_name, p.image_url AS product_image_url, " +
+                "c.name AS combo_name, c.image_url AS combo_image_url " +
                 "FROM order_details od " +
                 "LEFT JOIN products p ON od.product_id = p.id " +
                 "LEFT JOIN sizes s ON od.size_id = s.id " +
                 "LEFT JOIN combos c ON od.combo_id = c.id " +
                 "WHERE od.order_id = ?";
-        return jdbcTemplate.query(sql, new OrderDetailResponseRowMapper(), orderId);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(OrderDetailResponse.class), orderId);
     }
 
     public List<OrderToppingResponse> findToppingsByOrderDetailId(Integer orderDetailId) {
@@ -155,11 +153,83 @@ public class OrderDao {
                 "FROM order_topping_details otd " +
                 "JOIN toppings t ON otd.topping_id = t.id " +
                 "WHERE otd.order_detail_id = ?";
-        return jdbcTemplate.query(sql, new OrderToppingResponseRowMapper(), orderDetailId);
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(OrderToppingResponse.class), orderDetailId);
     }
 
     public void updateOrderStatus(Integer orderId, String status) {
         String sql = "UPDATE orders SET status = ?, updated_at = GETDATE() WHERE id = ?";
         jdbcTemplate.update(sql, status, orderId);
+    }
+
+    public int countAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM orders WHERE 1=1");
+        List<Object> params = new java.util.ArrayList<>();
+
+        if (customerName != null && !customerName.isEmpty()) {
+            sql.append(" AND customer_name LIKE ?");
+            params.add("%" + customerName + "%");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND status = ?");
+            params.add(status);
+        }
+        if (paymentMethod != null && !paymentMethod.isEmpty()) {
+            sql.append(" AND payment_method = ?");
+            params.add(paymentMethod);
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            sql.append(" AND created_at >= ?");
+            params.add(startDate + " 00:00:00");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql.append(" AND created_at <= ?");
+            params.add(endDate + " 23:59:59");
+        }
+
+        return jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
+    }
+
+    public List<Order> findAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM orders WHERE 1=1");
+        List<Object> params = new java.util.ArrayList<>();
+
+        if (customerName != null && !customerName.isEmpty()) {
+            sql.append(" AND customer_name LIKE ?");
+            params.add("%" + customerName + "%");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND status = ?");
+            params.add(status);
+        }
+        if (paymentMethod != null && !paymentMethod.isEmpty()) {
+            sql.append(" AND payment_method = ?");
+            params.add(paymentMethod);
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            sql.append(" AND created_at >= ?");
+            params.add(startDate + " 00:00:00");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql.append(" AND created_at <= ?");
+            params.add(endDate + " 23:59:59");
+        }
+
+        // Validate and apply sorting
+        String orderColumn = "created_at";
+        if ("totalPrice".equals(sortBy)) {
+            orderColumn = "total_price";
+        } else if ("createdAt".equals(sortBy)) {
+            orderColumn = "created_at";
+        }
+        
+        String direction = "ASC".equalsIgnoreCase(sortDirection) ? "ASC" : "DESC";
+        sql.append(" ORDER BY ").append(orderColumn).append(" ").append(direction);
+        
+        int offset = (page - 1) * limit;
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(limit);
+
+        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Order.class), params.toArray());
     }
 }

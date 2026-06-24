@@ -188,6 +188,14 @@ public class OrderService {
         return mapToOrderResponse(order, true);
     }
 
+    public OrderResponse getOrderByIdAdmin(Integer orderId) {
+        Order order = orderDao.findById(orderId);
+        if (order == null) {
+            throw new AppException(404, "Không tìm thấy đơn hàng");
+        }
+        return mapToOrderResponse(order, true);
+    }
+
     public void cancelOrder(Integer orderId, Integer userId) {
         Order order = orderDao.findById(orderId);
         if (order == null || !order.getUserId().equals(userId)) {
@@ -230,5 +238,38 @@ public class OrderService {
         }
 
         return response;
+    }
+
+    public PageResponse<OrderResponse> getAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
+        int totalElements = orderDao.countAllOrdersAdmin(customerName, status, paymentMethod, startDate, endDate);
+        int totalPages = (int) Math.ceil((double) totalElements / limit);
+        
+        List<Order> orders = orderDao.findAllOrdersAdmin(customerName, status, paymentMethod, startDate, endDate, sortBy, sortDirection, page, limit);
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        
+        for (Order order : orders) {
+            orderResponses.add(mapToOrderResponse(order, false));
+        }
+        
+        return PageResponse.<OrderResponse>builder()
+                .content(orderResponses)
+                .currentPage(page)
+                .totalPages(totalPages)
+                .totalElements(totalElements)
+                .build();
+    }
+
+    public void updateOrderStatusAdmin(Integer orderId, String status) {
+        Order order = orderDao.findById(orderId);
+        if (order == null) {
+            throw new AppException(404, "Không tìm thấy đơn hàng");
+        }
+        
+        try {
+            OrderStatus orderStatus = OrderStatus.valueOf(status);
+            orderDao.updateOrderStatus(orderId, orderStatus.name());
+        } catch (IllegalArgumentException e) {
+            throw new AppException(400, "Trạng thái đơn hàng không hợp lệ");
+        }
     }
 }

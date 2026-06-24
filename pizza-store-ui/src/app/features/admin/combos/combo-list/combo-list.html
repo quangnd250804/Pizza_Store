@@ -1,0 +1,50 @@
+<div class="bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Quản lý Combo</h2>
+    <button (click)="openCreateForm()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      + Thêm combo
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="p-3 font-semibold w-16">ID</th>
+          <th class="p-3 font-semibold w-24">Ảnh</th>
+          <th class="p-3 font-semibold">Tên combo</th>
+          <th class="p-3 font-semibold">Giá (VNĐ)</th>
+          <th class="p-3 font-semibold">Trạng thái</th>
+          <th class="p-3 font-semibold text-center">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cmb of combos; track cmb.id) {
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" (click)="openEditForm(cmb)">
+          <td class="p-3">{{ cmb.id }}</td>
+          <td class="p-3">
+            @if (cmb.imageUrl) {
+            <img [src]="cmb.imageUrl" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+            }
+          </td>
+          <td class="p-3">{{ cmb.name }}</td>
+          <td class="p-3">{{ cmb.price | number }}đ</td>
+          <td class="p-3">
+            <span [class]="cmb.isAvailable ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
+              {{ cmb.isAvailable ? 'Còn hàng' : 'Hết hàng' }}
+            </span>
+          </td>
+          <td class="p-3 text-center space-x-2" (click)="$event.stopPropagation()">
+            <button (click)="openEditForm(cmb)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm transition">Sửa</button>
+            <button (click)="deleteCombo(cmb.id)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">Xóa</button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (showForm) {
+<app-combo-form [combo]="selectedCombo" (close)="closeForm($event)"></app-combo-form>
+}

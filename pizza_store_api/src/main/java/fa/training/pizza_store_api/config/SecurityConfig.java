@@ -70,6 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/categories/**", "/api/v1/products/**", "/api/v1/toppings/**", "/api/v1/combos/**", "/api/v1/upload/**").hasRole("ADMIN") // Chỉ Admin được tạo
                 .antMatchers(HttpMethod.PUT, "/api/v1/categories/**", "/api/v1/products/**", "/api/v1/toppings/**", "/api/v1/combos/**").hasRole("ADMIN")  // Chỉ Admin được sửa
                 .antMatchers(HttpMethod.DELETE, "/api/v1/categories/**", "/api/v1/products/**", "/api/v1/toppings/**", "/api/v1/combos/**").hasRole("ADMIN") // Chỉ Admin được xóa
+                .antMatchers("/api/v1/users/**").hasRole("ADMIN") // Chỉ Admin quản lý user
                 .anyRequest().authenticated(); //Các api khác phải xác thực mới được truy cập
 
         // CHÈN BỘ LỌC JWT vào trước bộ lọc UsernamePasswordAuthenticationFilter mặc định

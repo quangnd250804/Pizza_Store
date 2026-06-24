@@ -1,0 +1,105 @@
+<div class="bg-white p-6 rounded shadow max-w-5xl mx-auto">
+  <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <h2 class="text-2xl font-bold">Chi tiết Đơn hàng</h2>
+    <a routerLink="/admin/orders" class="text-blue-600 hover:text-blue-800 transition font-medium flex items-center">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Quay lại danh sách
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-8 text-gray-500">Đang tải thông tin...</div>
+  } @else if (error) {
+    <div class="text-center py-8 text-red-500 bg-red-50 rounded">{{ error }}</div>
+  } @else if (order) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Order Info -->
+      <div class="col-span-2 bg-gray-50 p-4 rounded border">
+        <h3 class="text-lg font-bold mb-4 border-b pb-2">Thông tin chung</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div><span class="text-gray-500">Mã đơn hàng:</span> <span class="font-semibold">#{{ order.id }}</span></div>
+          <div><span class="text-gray-500">Ngày đặt:</span> <span class="font-semibold">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
+          <div><span class="text-gray-500">Trạng thái:</span> 
+            <span class="ml-2 px-2 py-1 rounded text-xs font-semibold {{ statusColors[order.status] || 'bg-gray-200 text-gray-800' }}">
+              {{ statusMap[order.status] || order.status }}
+            </span>
+          </div>
+          <div><span class="text-gray-500">Thanh toán:</span> <span class="font-semibold">{{ paymentMethodMap[order.paymentMethod] || order.paymentMethod }}</span></div>
+        </div>
+      </div>
+
+      <!-- Customer Info -->
+      <div class="bg-gray-50 p-4 rounded border">
+        <h3 class="text-lg font-bold mb-4 border-b pb-2">Khách hàng</h3>
+        <div class="space-y-2">
+          <div><span class="text-gray-500">Tên:</span> <span class="font-semibold">{{ order.customerName }}</span></div>
+          <div><span class="text-gray-500">SĐT:</span> <span class="font-semibold">{{ order.customerPhone }}</span></div>
+          <div><span class="text-gray-500">Địa chỉ:</span> <span class="font-semibold">{{ order.shippingAddress }}</span></div>
+          @if (order.note) {
+            <div><span class="text-gray-500">Ghi chú:</span> <span class="italic">{{ order.note }}</span></div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <h3 class="text-xl font-bold mb-4">Sản phẩm đã đặt</h3>
+    <div class="overflow-x-auto mb-8 border rounded">
+      <table class="min-w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 border-b">
+            <th class="p-3 font-semibold">Hình ảnh</th>
+            <th class="p-3 font-semibold">Tên Món</th>
+            <th class="p-3 font-semibold text-center">Số lượng</th>
+            <th class="p-3 font-semibold text-right">Đơn giá</th>
+            <th class="p-3 font-semibold text-right">Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of order.orderDetails; track item.id) {
+            <tr class="border-b">
+              <td class="p-3">
+                <img [src]="item.productImageUrl || item.comboImageUrl" class="w-16 h-16 object-cover rounded shadow-sm">
+              </td>
+              <td class="p-3">
+                <div class="font-semibold">{{ item.productName || item.comboName }}</div>
+                @if (item.sizeName) {
+                  <div class="text-sm text-gray-500">Size: {{ item.sizeName }}</div>
+                }
+                @if (item.toppingDetails && item.toppingDetails.length > 0) {
+                  <div class="text-xs text-gray-500 mt-1">
+                    Toppings: 
+                    @for (topping of item.toppingDetails; track topping.toppingId) {
+                      <span class="inline-block bg-gray-100 rounded px-1 mr-1 mb-1">{{ topping.name }}</span>
+                    }
+                  </div>
+                }
+              </td>
+              <td class="p-3 text-center">{{ item.quantity }}</td>
+              <td class="p-3 text-right">{{ item.price | number }}đ</td>
+              <td class="p-3 text-right font-medium text-gray-800">{{ item.price * item.quantity | number }}đ</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="flex justify-end">
+      <div class="w-72 bg-gray-50 p-4 rounded border">
+        <div class="flex justify-between mb-2">
+          <span class="text-gray-600">Tổng tiền món:</span>
+          <span>{{ (order.totalPrice || 0) + (order.discountApplied || 0) | number }}đ</span>
+        </div>
+        <div class="flex justify-between mb-2 text-red-500">
+          <span>Giảm giá:</span>
+          <span>- {{ order.discountApplied || 0 | number }}đ</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-2 font-bold text-lg">
+          <span>Thành tiền:</span>
+          <span class="text-red-600">{{ order.totalPrice || 0 | number }}đ</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

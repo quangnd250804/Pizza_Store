@@ -26,5 +26,5 @@ public class ComboRequest {
     private boolean isAvailable = true;
 
     @NotEmpty(message = "Combo phải chứa ít nhất một sản phẩm bên trong")
-    private List<ComboDetailRequest> items;
+    private List<ComboDetailRequest> details;
 }

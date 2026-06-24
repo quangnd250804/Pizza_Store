@@ -1,7 +1,6 @@
 package fa.training.pizza_store_api.dao;
 
-import fa.training.pizza_store_api.config.rowMapper.ProductRowMapper;
-import fa.training.pizza_store_api.config.rowMapper.ProductVariantRowMapper;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import fa.training.pizza_store_api.model.Product;
 import fa.training.pizza_store_api.model.ProductVariant;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class ProductDao {
     // Lấy tất cả sản phẩm kèm biến thể kích thước (Dành cho trang chủ Menu khách
     // hàng)
     public List<Product> findAllActive(String categoryCode, int page, int limit) {
-        String sql = "SELECT p.*, c.name AS category_name " +
+        String sql = "SELECT p.*, p.is_available AS available, p.is_deleted AS deleted, c.name AS category_name " +
                 "FROM products p " +
                 "JOIN categories c ON p.category_id = c.id " +
                 "WHERE p.is_deleted = 0 AND p.is_available = 1";
@@ -43,7 +42,7 @@ public class ProductDao {
         int offset = (page - 1) * limit;
         sql += " ORDER BY p.id OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
 
-        List<Product> products = jdbcTemplate.query(sql, new ProductRowMapper());
+        List<Product> products = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Product.class));
 
         // Nap thêm biến thể kích thước + giá tiền cho từng sản phẩm
         String variantSql = "SELECT pv.*, s.name as sizeName, s.code as sizeCode " +
@@ -51,7 +50,7 @@ public class ProductDao {
                 "JOIN sizes s ON pv.size_id = s.id " +
                 "WHERE pv.product_id = ?";
         for (Product product : products) {
-            List<ProductVariant> variants = jdbcTemplate.query(variantSql, new ProductVariantRowMapper(),
+            List<ProductVariant> variants = jdbcTemplate.query(variantSql, new BeanPropertyRowMapper<>(ProductVariant.class),
                     product.getId());
             product.setVariants(variants);
         }
@@ -69,7 +68,7 @@ public class ProductDao {
 
     // Lấy tất cả sản phẩm kèm biến thể kích thước (Dành cho admin quản lý)
     public List<Product> findAll(String categoryCode, int page, int limit) {
-        String sql = "SELECT p.*, c.name AS category_name " +
+        String sql = "SELECT p.*, p.is_available AS available, p.is_deleted AS deleted, c.name AS category_name " +
                 "FROM products p " +
                 "JOIN categories c ON p.category_id = c.id ";
 
@@ -80,7 +79,7 @@ public class ProductDao {
         int offset = (page - 1) * limit;
         sql += " ORDER BY p.id OFFSET " + offset + " ROWS FETCH NEXT " + limit + " ROWS ONLY";
 
-        List<Product> products = jdbcTemplate.query(sql, new ProductRowMapper());
+        List<Product> products = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Product.class));
 
         // Nap thêm biến thể kích thước + giá tiền cho từng sản phẩm
         String variantSql = "SELECT pv.*, s.name as sizeName, s.code as sizeCode " +
@@ -88,7 +87,7 @@ public class ProductDao {
                 "JOIN sizes s ON pv.size_id = s.id " +
                 "WHERE pv.product_id = ?";
         for (Product product : products) {
-            List<ProductVariant> variants = jdbcTemplate.query(variantSql, new ProductVariantRowMapper(),
+            List<ProductVariant> variants = jdbcTemplate.query(variantSql, new BeanPropertyRowMapper<>(ProductVariant.class),
                     product.getId());
             product.setVariants(variants);
         }

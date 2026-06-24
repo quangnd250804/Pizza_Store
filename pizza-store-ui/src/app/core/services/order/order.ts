@@ -38,4 +38,39 @@ export class OrderService {
       map(response => response.result)
     );
   }
+
+  getAllOrdersAdmin(
+    search?: string,
+    status?: string,
+    paymentMethod?: string,
+    startDate?: string,
+    endDate?: string,
+    sortBy: string = 'createdAt',
+    sortDirection: string = 'DESC',
+    page: number = 1,
+    limit: number = 10
+  ): Observable<PageResponse<OrderResponse>> {
+    let url = `${this.baseURL}/admin?page=${page}&limit=${limit}&sortBy=${sortBy}&sortDirection=${sortDirection}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (status) url += `&status=${status}`;
+    if (paymentMethod) url += `&paymentMethod=${paymentMethod}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+    
+    return this.http.get<ApiResponse<PageResponse<OrderResponse>>>(url).pipe(
+      map(response => response.result)
+    );
+  }
+
+  getOrderByIdAdmin(id: number): Observable<OrderResponse> {
+    return this.http.get<ApiResponse<OrderResponse>>(`${this.baseURL}/admin/${id}`).pipe(
+      map(response => response.result)
+    );
+  }
+
+  updateOrderStatusAdmin(id: number, status: string): Observable<string> {
+    return this.http.put<ApiResponse<string>>(`${this.baseURL}/admin/${id}/status?status=${status}`, {}).pipe(
+      map(response => response.result)
+    );
+  }
 }

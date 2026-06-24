@@ -1,0 +1,130 @@
+<div class="bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Quản lý Đơn hàng (Orders)</h2>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-gray-50 p-4 rounded mb-6 border">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tìm Tên Khách</label>
+        <input type="text" [(ngModel)]="searchName" placeholder="Nhập tên..." class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+        <select [(ngModel)]="statusFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border">
+          <option value="">Tất cả</option>
+          <option value="PENDING">Chờ duyệt</option>
+          <option value="CONFIRMED">Đã xác nhận</option>
+          <option value="PREPARING">Đang chuẩn bị</option>
+          <option value="SHIPPING">Đang giao</option>
+          <option value="DELIVERED">Đã giao</option>
+          <option value="CANCELLED">Đã hủy</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Phương thức TT</label>
+        <select [(ngModel)]="paymentMethodFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border">
+          <option value="">Tất cả</option>
+          <option value="COD">Tiền mặt</option>
+          <option value="VNPAY">VNPay</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+        <input type="date" [(ngModel)]="startDateFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+        <input type="date" [(ngModel)]="endDateFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border" />
+      </div>
+    </div>
+    <div class="flex justify-end mt-4 space-x-2">
+      <button (click)="resetFilters()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">Xóa bộ lọc</button>
+      <button (click)="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Lọc & Tìm kiếm</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="p-3 font-semibold w-16">ID</th>
+          <th class="p-3 font-semibold">Tên Khách</th>
+          <th class="p-3 font-semibold">SĐT</th>
+          <th class="p-3 font-semibold cursor-pointer select-none hover:bg-gray-200 transition" (click)="changeSort('totalPrice')">
+            Tổng Tiền
+            @if (sortBy === 'totalPrice') {
+              <span>{{ sortDirection === 'ASC' ? '▲' : '▼' }}</span>
+            } @else {
+              <span class="text-gray-400">↕</span>
+            }
+          </th>
+          <th class="p-3 font-semibold">Phương thức TT</th>
+          <th class="p-3 font-semibold cursor-pointer select-none hover:bg-gray-200 transition" (click)="changeSort('createdAt')">
+            Ngày đặt
+            @if (sortBy === 'createdAt') {
+              <span>{{ sortDirection === 'ASC' ? '▲' : '▼' }}</span>
+            } @else {
+              <span class="text-gray-400">↕</span>
+            }
+          </th>
+          <th class="p-3 font-semibold">Trạng thái</th>
+          <th class="p-3 font-semibold text-center">Đổi Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (orders.length === 0) {
+          <tr>
+            <td colspan="8" class="p-4 text-center text-gray-500">Không tìm thấy đơn hàng nào</td>
+          </tr>
+        }
+        @for (order of orders; track order.id) {
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" routerLink="/admin/orders/{{order.id}}">
+          <td class="p-3">#{{ order.id }}</td>
+          <td class="p-3">{{ order.customerName }}</td>
+          <td class="p-3">{{ order.customerPhone }}</td>
+          <td class="p-3 font-medium text-red-600">{{ order.totalPrice | number }}đ</td>
+          <td class="p-3">{{ paymentMethodMap[order.paymentMethod] || order.paymentMethod }}</td>
+          <td class="p-3">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="p-3">
+            <span class="px-2 py-1 rounded text-xs font-semibold {{ statusColors[order.status] || 'bg-gray-100 text-gray-800' }}">
+              {{ statusMap[order.status] || order.status }}
+            </span>
+          </td>
+          <td class="p-3 text-center" (click)="$event.stopPropagation()">
+            @if (order.status !== 'CANCELLED' && order.status !== 'DELIVERED') {
+              <select class="border border-gray-300 rounded px-2 py-1 text-sm bg-white" 
+                      (change)="updateStatus(order.id, $any($event.target).value)">
+                <option value="" disabled selected>Chọn...</option>
+                @if (order.status === 'PENDING') {
+                  <option value="CONFIRMED">Xác nhận</option>
+                  <option value="CANCELLED">Hủy</option>
+                }
+                @if (order.status === 'CONFIRMED') {
+                  <option value="PREPARING">Chuẩn bị</option>
+                  <option value="CANCELLED">Hủy</option>
+                }
+                @if (order.status === 'PREPARING') {
+                  <option value="SHIPPING">Giao hàng</option>
+                }
+                @if (order.status === 'SHIPPING') {
+                  <option value="DELIVERED">Đã giao</option>
+                }
+              </select>
+            } @else {
+              <span class="text-sm text-gray-400 italic">Không thể đổi</span>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between items-center mt-4">
+    <button (click)="previousPage()" [disabled]="currentPage === 1" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Trước</button>
+    <span>Trang {{ currentPage }} / {{ totalPages > 0 ? totalPages : 1 }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage >= totalPages" class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Sau</button>
+  </div>
+</div>

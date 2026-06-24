@@ -1,0 +1,90 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 my-8">
+    <h2 class="text-xl font-bold mb-4">{{ combo ? 'Sửa Combo' : 'Thêm Combo' }}</h2>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Cột trái -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Tên combo <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="name" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <div class="text-red-500 text-xs mt-1">Tên combo là bắt buộc.</div>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Giá (VNĐ) <span class="text-red-500">*</span></label>
+            <input type="number" formControlName="price" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Ảnh đại diện</label>
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            @if (isUploading) {
+              <div class="text-sm text-blue-500 mt-1">Đang tải ảnh lên...</div>
+            }
+            @if (form.get('imageUrl')?.value) {
+              <div class="mt-2">
+                <img [src]="form.get('imageUrl')?.value" alt="Preview" class="h-20 w-20 object-cover rounded shadow">
+              </div>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Mô tả</label>
+            <textarea formControlName="description" rows="3" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" formControlName="isAvailable" id="isAvailableCmb" class="w-4 h-4">
+            <label for="isAvailableCmb" class="text-sm font-medium">Còn hàng</label>
+          </div>
+        </div>
+
+        <!-- Cột phải: Details -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-sm font-medium">Sản phẩm trong Combo</label>
+            <button type="button" (click)="addDetail()" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
+              + Thêm món
+            </button>
+          </div>
+          
+          <div formArrayName="details" class="space-y-2 max-h-80 overflow-y-auto pr-2">
+            @for (detail of details.controls; track $index) {
+            <div [formGroupName]="$index" class="flex items-center space-x-2 border p-2 rounded bg-gray-50">
+              <div class="flex-1">
+                <label class="text-xs text-gray-500">Sản phẩm</label>
+                <select formControlName="productId" class="w-full border rounded p-1 text-sm">
+                  <option value="" disabled>-- Chọn --</option>
+                  @for (prod of products; track prod.id) {
+                  <option [value]="prod.id">{{ prod.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="w-16">
+                <label class="text-xs text-gray-500">SL</label>
+                <input type="number" formControlName="quantity" class="w-full border rounded p-1 text-sm">
+              </div>
+              <button type="button" (click)="removeDetail($index)" class="mt-4 text-red-500 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end space-x-3 border-t pt-4">
+        <button type="button" (click)="onCancel()" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100 transition">Hủy</button>
+        <button type="submit" [disabled]="submitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-blue-400">
+          {{ submitting ? 'Đang lưu...' : 'Lưu' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

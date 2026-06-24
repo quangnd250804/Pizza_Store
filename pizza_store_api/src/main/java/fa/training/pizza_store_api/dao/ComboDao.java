@@ -1,7 +1,6 @@
 package fa.training.pizza_store_api.dao;
 
-import fa.training.pizza_store_api.config.rowMapper.ComboDetailRowMapper;
-import fa.training.pizza_store_api.config.rowMapper.ComboRowMapper;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import fa.training.pizza_store_api.model.Combo;
 import fa.training.pizza_store_api.model.ComboDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,30 +16,30 @@ public class ComboDao {
     private JdbcTemplate jdbcTemplate;
 
     public List<Combo> findAllAvailableCombos() {
-        String sql = "SELECT * FROM combos WHERE is_available = 1 AND is_deleted = 0";
-        List<Combo> combos = jdbcTemplate.query(sql, new ComboRowMapper());
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM combos WHERE is_available = 1 AND is_deleted = 0";
+        List<Combo> combos = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Combo.class));
 
         String detailSql = "SELECT cd.*, p.name as productName, p.image_url as productImageUrl " +
                 "FROM combo_details cd " +
                 "JOIN products p ON cd.product_id = p.id " +
                 "WHERE cd.combo_id = ?";
         for (Combo combo : combos) {
-            List<ComboDetail> details = jdbcTemplate.query(detailSql, new ComboDetailRowMapper(), combo.getId());
+            List<ComboDetail> details = jdbcTemplate.query(detailSql, new BeanPropertyRowMapper<>(ComboDetail.class), combo.getId());
             combo.setDetails(details);
         }
         return combos;
     }
 
     public List<Combo> findAllCombos() {
-        String sql = "SELECT * FROM combos";
-        List<Combo> combos = jdbcTemplate.query(sql, new ComboRowMapper());
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM combos";
+        List<Combo> combos = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Combo.class));
 
         String detailSql = "SELECT cd.*, p.name as productName, p.image_url as productImageUrl " +
                 "FROM combo_details cd " +
                 "JOIN products p ON cd.product_id = p.id " +
                 "WHERE cd.combo_id = ?";
         for (Combo combo : combos) {
-            List<ComboDetail> details = jdbcTemplate.query(detailSql, new ComboDetailRowMapper(), combo.getId());
+            List<ComboDetail> details = jdbcTemplate.query(detailSql, new BeanPropertyRowMapper<>(ComboDetail.class), combo.getId());
             combo.setDetails(details);
         }
         return combos;
@@ -89,9 +88,9 @@ public class ComboDao {
     }
 
     public Combo findById(int id) {
-        String sql = "SELECT * FROM combos WHERE id = ? AND is_deleted = 0";
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM combos WHERE id = ? AND is_deleted = 0";
         try {
-            return jdbcTemplate.queryForObject(sql, new ComboRowMapper(), id);
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Combo.class), id);
         } catch (Exception e) {
             return null;
         }

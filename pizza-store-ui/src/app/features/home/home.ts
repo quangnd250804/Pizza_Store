@@ -52,6 +52,10 @@ export class Home implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    if (this.auth.isAdmin()) {
+      this.router.navigate(['/admin']);
+      return;
+    }
 
     this.categoryService.getActiveCategories().subscribe({
       next: (response) => {
@@ -113,7 +117,7 @@ export class Home implements OnInit {
           console.log('Danh sách sản phẩm: ', this.products);
 
           // Ensure compatibility: some backends return `available`/`deleted` while frontend expects `isAvailable`/`isDeleted`
-          for (const p of this.products as any[]) {
+          for (const p of this.products as (Product & { available?: boolean; deleted?: boolean })[]) {
             if (p.available !== undefined && p.isAvailable === undefined) {
               p.isAvailable = p.available;
             }

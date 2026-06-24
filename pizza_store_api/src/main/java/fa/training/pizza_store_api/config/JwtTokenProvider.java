@@ -2,7 +2,7 @@ package fa.training.pizza_store_api.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.Authentication;
@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@Data
 @Slf4j
 @Component
 @ConfigurationProperties(prefix = "jwt")
@@ -34,13 +35,18 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    //1.Tạo Token từ thông tin Authentication đăng nhập thành công
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
+
+        String authorities = authentication.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .collect(java.util.stream.Collectors.joining(" "));
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername()) //Lưu username vào subject của token
+                .claim("scope", authorities) // Lưu quyền hạn (roles) vào claim scope
                 .setIssuedAt(now) //Thời gian tạo token
                 .setExpiration(expiryDate) //Thời gian hết hạn token
                 .signWith(key, SignatureAlgorithm.HS256) //Ký token bằng key đã khởi tạo

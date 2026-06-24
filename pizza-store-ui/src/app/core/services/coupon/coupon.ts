@@ -13,13 +13,13 @@ export class CouponService {
   constructor(private http: HttpClient) { }
 
   getActiveCoupons(): Observable<Coupon[]> {
-    return this.http.get<any>(this.apiUrl).pipe(
+    return this.http.get<{ result: Coupon[] }>(this.apiUrl).pipe(
       map(response => response.result)
     );
   }
 
   validateCoupon(code: string, total: number): Observable<Coupon> {
-    return this.http.get<any>(`${this.apiUrl}/validate?code=${code}&total=${total}`).pipe(
+    return this.http.get<{ result: Coupon }>(`${this.apiUrl}/validate?code=${code}&total=${total}`).pipe(
       map(response => response.result)
     );
   }
