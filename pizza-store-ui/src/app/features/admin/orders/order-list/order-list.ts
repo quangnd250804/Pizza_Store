@@ -21,6 +21,7 @@ export class OrderListComponent implements OnInit {
   searchName: string = '';
   statusFilter: string = '';
   paymentMethodFilter: string = '';
+  paymentStatusFilter: string = '';
   startDateFilter: string = '';
   endDateFilter: string = '';
 
@@ -63,6 +64,7 @@ export class OrderListComponent implements OnInit {
       this.searchName,
       this.statusFilter,
       this.paymentMethodFilter,
+      this.paymentStatusFilter,
       this.startDateFilter,
       this.endDateFilter,
       this.sortBy,
@@ -87,6 +89,7 @@ export class OrderListComponent implements OnInit {
     this.searchName = '';
     this.statusFilter = '';
     this.paymentMethodFilter = '';
+    this.paymentStatusFilter = '';
     this.startDateFilter = '';
     this.endDateFilter = '';
     this.sortBy = 'createdAt';
@@ -139,5 +142,9 @@ export class OrderListComponent implements OnInit {
       this.cdr.detectChanges();
       this.loadOrders();
     }
+  }
+
+  getEventValue(event: Event): string {
+    return (event.target as HTMLSelectElement).value;
   }
 }

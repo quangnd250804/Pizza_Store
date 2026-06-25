@@ -46,8 +46,9 @@ export class CategoryFormComponent implements OnInit {
     }
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       this.isUploading = true;
       this.uploadService.uploadImage(file).subscribe({

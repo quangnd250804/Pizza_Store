@@ -240,11 +240,11 @@ public class OrderService {
         return response;
     }
 
-    public PageResponse<OrderResponse> getAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
-        int totalElements = orderDao.countAllOrdersAdmin(customerName, status, paymentMethod, startDate, endDate);
+    public PageResponse<OrderResponse> getAllOrdersAdmin(String customerName, String status, String paymentMethod, String paymentStatus, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
+        int totalElements = orderDao.countAllOrdersAdmin(customerName, status, paymentMethod, paymentStatus, startDate, endDate);
         int totalPages = (int) Math.ceil((double) totalElements / limit);
         
-        List<Order> orders = orderDao.findAllOrdersAdmin(customerName, status, paymentMethod, startDate, endDate, sortBy, sortDirection, page, limit);
+        List<Order> orders = orderDao.findAllOrdersAdmin(customerName, status, paymentMethod, paymentStatus, startDate, endDate, sortBy, sortDirection, page, limit);
         List<OrderResponse> orderResponses = new ArrayList<>();
         
         for (Order order : orders) {
@@ -271,5 +271,18 @@ public class OrderService {
         } catch (IllegalArgumentException e) {
             throw new AppException(400, "Trạng thái đơn hàng không hợp lệ");
         }
+    }
+
+    public void updatePaymentStatusAdmin(Integer orderId, String status) {
+        Order order = orderDao.findById(orderId);
+        if (order == null) {
+            throw new AppException(404, "Không tìm thấy đơn hàng");
+        }
+        
+        if (!"PAID".equals(status) && !"UNPAID".equals(status)) {
+            throw new AppException(400, "Trạng thái thanh toán không hợp lệ");
+        }
+        
+        orderDao.updatePaymentStatus(orderId, status);
     }
 }

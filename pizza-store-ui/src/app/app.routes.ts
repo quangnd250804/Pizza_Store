@@ -16,6 +16,8 @@ import {ToppingListComponent} from './features/admin/toppings/topping-list/toppi
 import {ComboListComponent} from './features/admin/combos/combo-list/combo-list';
 import {OrderListComponent} from './features/admin/orders/order-list/order-list';
 import {AdminOrderDetailComponent} from './features/admin/orders/admin-order-detail/admin-order-detail';
+import {CashierLayoutComponent} from './features/cashier/cashier-layout/cashier-layout';
+import {CashierDashboardComponent} from './features/cashier/dashboard/dashboard';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -37,6 +39,14 @@ export const routes: Routes = [
       { path: 'combos', component: ComboListComponent },
       { path: 'orders', component: OrderListComponent },
       { path: 'orders/:id', component: AdminOrderDetailComponent }
+    ]
+  },
+  {
+    path: 'cashier',
+    component: CashierLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: CashierDashboardComponent }
     ]
   },
   { path: '', component: Home },

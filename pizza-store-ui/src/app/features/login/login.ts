@@ -57,6 +57,8 @@ export class Login implements OnInit {
 
           if (this.auth.isAdmin()) {
             this.router.navigate(['/admin']);
+          } else if (this.auth.isCashier()) {
+            this.router.navigate(['/cashier']);
           } else {
             this.router.navigate(['/']);
           }

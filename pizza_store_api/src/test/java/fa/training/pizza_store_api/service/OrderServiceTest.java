@@ -64,20 +64,20 @@ class OrderServiceTest {
         Order order2 = new Order();
         order2.setId(2);
 
-        when(orderDao.countAllOrdersAdmin("John", "PENDING", "COD", null, null))
+        when(orderDao.countAllOrdersAdmin("John", "PENDING", "COD", null, null, null))
                 .thenReturn(2);
-        when(orderDao.findAllOrdersAdmin("John", "PENDING", "COD", null, null, "createdAt", "DESC", 1, 10))
+        when(orderDao.findAllOrdersAdmin("John", "PENDING", "COD", null, null, null, "createdAt", "DESC", 1, 10))
                 .thenReturn(Arrays.asList(order1, order2));
 
-        PageResponse<OrderResponse> response = orderService.getAllOrdersAdmin("John", "PENDING", "COD", null, null, "createdAt", "DESC", 1, 10);
+        PageResponse<OrderResponse> response = orderService.getAllOrdersAdmin("John", "PENDING", "COD", null, null, null, "createdAt", "DESC", 1, 10);
 
         assertEquals(2, response.getTotalElements());
         assertEquals(1, response.getTotalPages());
         assertEquals(1, response.getCurrentPage());
         assertEquals(2, response.getContent().size());
         
-        verify(orderDao, times(1)).countAllOrdersAdmin("John", "PENDING", "COD", null, null);
-        verify(orderDao, times(1)).findAllOrdersAdmin("John", "PENDING", "COD", null, null, "createdAt", "DESC", 1, 10);
+        verify(orderDao, times(1)).countAllOrdersAdmin("John", "PENDING", "COD", null, null, null);
+        verify(orderDao, times(1)).findAllOrdersAdmin("John", "PENDING", "COD", null, null, null, "createdAt", "DESC", 1, 10);
     }
 
     @Test
