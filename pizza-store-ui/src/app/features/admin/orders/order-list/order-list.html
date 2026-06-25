@@ -95,7 +95,7 @@
           <td class="p-3 text-center" (click)="$event.stopPropagation()">
             @if (order.status !== 'CANCELLED' && order.status !== 'DELIVERED') {
               <select class="border border-gray-300 rounded px-2 py-1 text-sm bg-white" 
-                      (change)="updateStatus(order.id, $any($event.target).value)">
+                      (change)="updateStatus(order.id, getEventValue($event))">
                 <option value="" disabled selected>Chọn...</option>
                 @if (order.status === 'PENDING') {
                   <option value="CONFIRMED">Xác nhận</option>

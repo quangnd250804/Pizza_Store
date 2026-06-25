@@ -43,6 +43,7 @@ export class OrderService {
     search?: string,
     status?: string,
     paymentMethod?: string,
+    paymentStatus?: string,
     startDate?: string,
     endDate?: string,
     sortBy: string = 'createdAt',
@@ -54,6 +55,7 @@ export class OrderService {
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (status) url += `&status=${status}`;
     if (paymentMethod) url += `&paymentMethod=${paymentMethod}`;
+    if (paymentStatus) url += `&paymentStatus=${paymentStatus}`;
     if (startDate) url += `&startDate=${startDate}`;
     if (endDate) url += `&endDate=${endDate}`;
     
@@ -70,6 +72,12 @@ export class OrderService {
 
   updateOrderStatusAdmin(id: number, status: string): Observable<string> {
     return this.http.put<ApiResponse<string>>(`${this.baseURL}/admin/${id}/status?status=${status}`, {}).pipe(
+      map(response => response.result)
+    );
+  }
+
+  updatePaymentStatusAdmin(id: number, status: string): Observable<string> {
+    return this.http.put<ApiResponse<string>>(`${this.baseURL}/admin/${id}/payment-status?status=${status}`, {}).pipe(
       map(response => response.result)
     );
   }

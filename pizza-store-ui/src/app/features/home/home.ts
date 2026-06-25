@@ -56,6 +56,11 @@ export class Home implements OnInit {
       this.router.navigate(['/admin']);
       return;
     }
+    
+    if (this.auth.isCashier()) {
+      this.router.navigate(['/cashier']);
+      return;
+    }
 
     this.categoryService.getActiveCategories().subscribe({
       next: (response) => {

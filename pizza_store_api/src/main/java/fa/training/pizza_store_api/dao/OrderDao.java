@@ -161,7 +161,7 @@ public class OrderDao {
         jdbcTemplate.update(sql, status, orderId);
     }
 
-    public int countAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate) {
+    public int countAllOrdersAdmin(String customerName, String status, String paymentMethod, String paymentStatus, String startDate, String endDate) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM orders WHERE 1=1");
         List<Object> params = new java.util.ArrayList<>();
 
@@ -177,6 +177,10 @@ public class OrderDao {
             sql.append(" AND payment_method = ?");
             params.add(paymentMethod);
         }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            sql.append(" AND payment_status = ?");
+            params.add(paymentStatus);
+        }
         if (startDate != null && !startDate.isEmpty()) {
             sql.append(" AND created_at >= ?");
             params.add(startDate + " 00:00:00");
@@ -189,7 +193,7 @@ public class OrderDao {
         return jdbcTemplate.queryForObject(sql.toString(), Integer.class, params.toArray());
     }
 
-    public List<Order> findAllOrdersAdmin(String customerName, String status, String paymentMethod, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
+    public List<Order> findAllOrdersAdmin(String customerName, String status, String paymentMethod, String paymentStatus, String startDate, String endDate, String sortBy, String sortDirection, int page, int limit) {
         StringBuilder sql = new StringBuilder("SELECT * FROM orders WHERE 1=1");
         List<Object> params = new java.util.ArrayList<>();
 
@@ -204,6 +208,10 @@ public class OrderDao {
         if (paymentMethod != null && !paymentMethod.isEmpty()) {
             sql.append(" AND payment_method = ?");
             params.add(paymentMethod);
+        }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            sql.append(" AND payment_status = ?");
+            params.add(paymentStatus);
         }
         if (startDate != null && !startDate.isEmpty()) {
             sql.append(" AND created_at >= ?");
