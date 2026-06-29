@@ -1,0 +1,62 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <h2 class="text-xl font-bold mb-4">Thêm Nhân Viên Mới</h2>
+    
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Tên đăng nhập <span class="text-red-500">*</span></label>
+          <input type="text" formControlName="username" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="VD: nguyenvan_a">
+          @if (userForm.get('username')?.invalid && userForm.get('username')?.touched) {
+          <div class="text-red-500 text-xs mt-1">
+            Tên đăng nhập là bắt buộc (ít nhất 3 ký tự).
+          </div>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Mật khẩu <span class="text-red-500">*</span></label>
+          <input type="password" formControlName="password" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+          <div class="text-red-500 text-xs mt-1">
+            Mật khẩu là bắt buộc (ít nhất 6 ký tự).
+          </div>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Họ và tên <span class="text-red-500">*</span></label>
+          <input type="text" formControlName="fullName" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Email <span class="text-red-500">*</span></label>
+          <input type="email" formControlName="email" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+          <div class="text-red-500 text-xs mt-1">
+            Email không hợp lệ.
+          </div>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Quyền <span class="text-red-500">*</span></label>
+          <select formControlName="roleName" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            @for (role of roles; track role.roleName) {
+            <option [value]="role.roleName">{{ role.roleName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end space-x-3">
+        <button type="button" (click)="onCancel()" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100 transition">
+          Hủy
+        </button>
+        <button type="submit" [disabled]="submitting" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-blue-400">
+          {{ submitting ? 'Đang lưu...' : 'Thêm' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold">Quản lý Danh mục (Category)</h2>
+    <button (click)="openCreateForm()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      + Thêm danh mục
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="p-3 font-semibold w-16">ID</th>
+          <th class="p-3 font-semibold w-24">Ảnh</th>
+          <th class="p-3 font-semibold">Mã danh mục</th>
+          <th class="p-3 font-semibold">Tên danh mục</th>
+          <th class="p-3 font-semibold">Trạng thái</th>
+          <th class="p-3 font-semibold text-center">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cat of categories; track cat.id) {
+        <tr class="border-b hover:bg-gray-50 cursor-pointer" (click)="openEditForm(cat)">
+          <td class="p-3">{{ cat.id }}</td>
+          <td class="p-3">
+            @if (cat.imageUrl) {
+            <img [src]="cat.imageUrl" alt="Ảnh" class="w-12 h-12 object-cover rounded">
+            }
+          </td>
+          <td class="p-3">{{ cat.code }}</td>
+          <td class="p-3">{{ cat.name }}</td>
+          <td class="p-3">
+            <span [class]="cat.isActive ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
+              {{ cat.isActive ? 'Hoạt động' : 'Tạm ẩn' }}
+            </span>
+          </td>
+          <td class="p-3 text-center space-x-2" (click)="$event.stopPropagation()">
+            <button (click)="openEditForm(cat)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm transition">Sửa</button>
+            <button (click)="deleteCategory(cat.id)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">Xóa</button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (showForm) {
+<app-category-form [category]="selectedCategory" (close)="closeForm($event)"></app-category-form>
+}

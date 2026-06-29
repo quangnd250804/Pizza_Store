@@ -46,6 +46,7 @@ public class ProductService {
 
     public void createProduct(ProductRequest request) {
         Product product = new Product();
+        product.setCategoryId(request.getCategoryId());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setImageUrl(request.getImageUrl());

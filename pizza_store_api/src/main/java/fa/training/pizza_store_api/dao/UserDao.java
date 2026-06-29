@@ -4,8 +4,10 @@ import fa.training.pizza_store_api.model.Role;
 import fa.training.pizza_store_api.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,22 +22,9 @@ public class UserDao {
     private RoleDao roleDao;
 
     public Optional<User> getUserById(Integer id) {
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT *, is_active AS active, is_deleted AS deleted FROM users WHERE id = ?";
         try{
-            User u = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setActive(rs.getBoolean("is_active"));
-                user.setDeleted(rs.getBoolean("is_deleted"));
-                user.setDob(rs.getTimestamp("dob")!= null ? rs.getTimestamp("dob").toLocalDateTime() : null);
-                user.setCreatedAt(rs.getTimestamp("created_at")!= null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
-                user.setPhoneNumber(rs.getString("phone_number"));
-                return user;
-            }, id);
+            User u = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), id);
             if(u != null){
                 List<Role> roles = roleDao.getRolesByUserId(u.getId());
                 u.setRoles(new HashSet<>(roles));
@@ -48,22 +37,9 @@ public class UserDao {
     }
 
     public Optional<User> findByUsername(String username) {
-        String sql = "SELECT * FROM users WHERE username = ? AND is_active = 1 AND is_deleted = 0";
+        String sql = "SELECT *, is_active AS active, is_deleted AS deleted FROM users WHERE username = ? AND is_active = 1 AND is_deleted = 0";
         try{
-            User u = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setActive(rs.getBoolean("is_active"));
-                user.setDeleted(rs.getBoolean("is_deleted"));
-                user.setDob(rs.getTimestamp("dob")!= null ? rs.getTimestamp("dob").toLocalDateTime() : null);
-                user.setCreatedAt(rs.getTimestamp("created_at")!= null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
-                user.setPhoneNumber(rs.getString("phone_number"));
-                return user;
-            }, username);
+            User u = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), username);
             if(u != null){
                 List<Role> roles = roleDao.getRolesByUserId(u.getId());
                 u.setRoles(new HashSet<>(roles));
@@ -112,5 +88,39 @@ public class UserDao {
 
         String insertUserRoleSql = "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)";
         jdbcTemplate.update(insertUserRoleSql, userId, roleId);
+    }
+    public List<User> findAll(int page, int limit) {
+        int offset = (page - 1) * limit;
+        String sql = "SELECT *, is_active AS active, is_deleted AS deleted FROM users " +
+                "ORDER BY id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        List<User> users = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class), offset, limit);
+        for (User u : users) {
+            List<Role> roles = roleDao.getRolesByUserId(u.getId());
+            u.setRoles(new HashSet<>(roles));
+        }
+        return users;
+    }
+
+    public int countAll() {
+        String sql = "SELECT COUNT(*) FROM users";
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    public void updateStatus(int id, boolean isActive) {
+        String sql = "UPDATE users SET is_active = ? WHERE id = ?";
+        jdbcTemplate.update(sql, isActive ? 1 : 0, id);
+    }
+
+    @Transactional
+    public void updateRoles(int userId, List<Integer> roleIds) {
+        // Delete all old roles
+        String deleteSql = "DELETE FROM user_roles WHERE user_id = ?";
+        jdbcTemplate.update(deleteSql, userId);
+
+        // Insert new roles
+        String insertSql = "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)";
+        for (Integer roleId : roleIds) {
+            jdbcTemplate.update(insertSql, userId, roleId);
+        }
     }
 }

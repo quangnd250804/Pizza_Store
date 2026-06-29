@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { OrderService } from '../../../core/services/order/order';
 import { OrderResponse, OrderStatus, PageResponse } from '../../../core/models/order';
@@ -54,7 +55,7 @@ export class OrderHistoryComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           console.error(err);
           this.toastService.showError('Không thể tải lịch sử đơn hàng');
           this.isLoading = false;
@@ -92,7 +93,7 @@ export class OrderHistoryComponent implements OnInit {
           this.toastService.showSuccess('Hủy đơn hàng thành công');
           this.loadOrders();
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           console.error(err);
           this.toastService.showError('Lỗi khi hủy đơn hàng');
           this.cdr.detectChanges();

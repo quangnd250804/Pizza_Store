@@ -1,6 +1,6 @@
 package fa.training.pizza_store_api.dao;
 
-import fa.training.pizza_store_api.config.rowMapper.ToppingRowMapper;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import fa.training.pizza_store_api.model.Topping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,13 +14,13 @@ public class ToppingDao {
     private JdbcTemplate jdbcTemplate;
 
     public List<Topping> findAll() {
-        String sql = "SELECT * FROM toppings";
-        return jdbcTemplate.query(sql, new ToppingRowMapper());
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM toppings";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Topping.class));
     }
 
     public List<Topping> findAllActive() {
-        String sql = "SELECT * FROM toppings WHERE is_available=1";
-        return jdbcTemplate.query(sql, new ToppingRowMapper());
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM toppings WHERE is_available=1";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Topping.class));
     }
 
     public int save(Topping topping) {
@@ -39,9 +39,9 @@ public class ToppingDao {
     }
 
     public Topping findById(int id) {
-        String sql = "SELECT * FROM toppings WHERE id = ?";
+        String sql = "SELECT *, is_available AS available, is_deleted AS deleted FROM toppings WHERE id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new ToppingRowMapper(), id);
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Topping.class), id);
         } catch (org.springframework.dao.EmptyResultDataAccessException e) {
             return null;
         }

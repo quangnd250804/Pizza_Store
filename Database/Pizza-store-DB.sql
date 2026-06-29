@@ -18,7 +18,7 @@ CREATE TABLE users (
     full_name NVARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     phone_number VARCHAR(15) NOT NULL,
-    dob DATETIME NOT NULL,
+    dob DATETIME NULL,
     is_active BIT NOT NULL DEFAULT 1,
     is_deleted BIT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
@@ -231,5 +231,4 @@ select * from coupons
 
 ALTER TABLE orders ADD coupon_id INT NULL FOREIGN KEY REFERENCES coupons(id);
 ALTER TABLE orders ADD discount_applied DECIMAL(18, 2) NOT NULL DEFAULT 0; -- Số tiền đã giảm
-
-select * from orders
+ALTER TABLE users ALTER COLUMN dob DATETIME NULL;

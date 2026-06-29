@@ -1,0 +1,40 @@
+<div class="min-h-screen bg-gray-100 flex flex-col">
+  <!-- Navbar (Header) -->
+  <header class="bg-blue-600 text-white shadow-md">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <h1 class="text-2xl font-bold tracking-tight">Pizza Store <span class="font-light">| Thu Ngân</span></h1>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <div class="flex flex-col text-right">
+          <span class="text-sm font-medium">{{ currentTime | date:'EEEE, dd/MM/yyyy' }}</span>
+          <span class="text-xl font-bold">{{ currentTime | date:'HH:mm:ss' }}</span>
+        </div>
+        
+        <div class="h-10 w-px bg-blue-500 hidden sm:block"></div>
+        
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-700 rounded-full h-9 w-9 flex items-center justify-center font-bold text-white shadow-inner">
+            {{ cashierName.charAt(0) | uppercase }}
+          </div>
+          <div class="hidden md:flex flex-col">
+            <span class="text-sm font-semibold">{{ cashierName }}</span>
+            <span class="text-xs text-blue-200">Ca làm việc đang hoạt động</span>
+          </div>
+          
+          <button (click)="logout()" class="ml-4 p-2 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600" title="Đăng xuất">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 overflow-y-auto">
+    <router-outlet></router-outlet>
+  </main>
+</div>

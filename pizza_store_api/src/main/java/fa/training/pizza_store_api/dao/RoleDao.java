@@ -26,4 +26,9 @@ public class RoleDao {
         String sql = "SELECT id FROM roles WHERE role_name = ?";
         return jdbcTemplate.queryForObject(sql, Integer.class, roleName);
     }
+
+    public List<Role> getAllRoles() {
+        String sql = "SELECT * FROM roles";
+        return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Role.class));
+    }
 }

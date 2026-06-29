@@ -34,7 +34,7 @@ public class ComboService {
         combo.setAvailable(request.isAvailable());
 
         List<ComboDetail> details = new ArrayList<>();
-        for (ComboDetailRequest item : request.getItems()) {
+        for (ComboDetailRequest item : request.getDetails()) {
             ComboDetail detail = new ComboDetail();
             detail.setProductId(item.getProductId());
             detail.setQuantity(item.getQuantity());
@@ -55,7 +55,7 @@ public class ComboService {
         combo.setAvailable(request.isAvailable());
 
         List<ComboDetail> details = new ArrayList<>();
-        for (ComboDetailRequest item : request.getItems()) {
+        for (ComboDetailRequest item : request.getDetails()) {
             ComboDetail detail = new ComboDetail();
             detail.setProductId(item.getProductId());
             detail.setQuantity(item.getQuantity());

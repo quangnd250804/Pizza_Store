@@ -76,7 +76,7 @@ class ComboServiceTest {
         ComboDetailRequest item = new ComboDetailRequest();
         item.setProductId(5);
         item.setQuantity(2);
-        req.setItems(Collections.singletonList(item));
+        req.setDetails(Collections.singletonList(item));
 
         comboService.createCombo(req);
 
@@ -105,7 +105,7 @@ class ComboServiceTest {
         ComboDetailRequest item = new ComboDetailRequest();
         item.setProductId(9);
         item.setQuantity(1);
-        req.setItems(Collections.singletonList(item));
+        req.setDetails(Collections.singletonList(item));
 
         comboService.updateCombo(id, req);
 

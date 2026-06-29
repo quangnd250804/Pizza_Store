@@ -1,6 +1,6 @@
 package fa.training.pizza_store_api.dao;
 
-import fa.training.pizza_store_api.config.rowMapper.CategoryRowMapper;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import fa.training.pizza_store_api.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,14 +15,14 @@ public class CategoryDao {
 
     // Lấy danh mục chưa bị xóa và đang hoạt động (cho client)
     public List<Category> findAllActive() {
-        String sql = "SELECT * FROM categories WHERE is_deleted = 0 AND is_active = 1";
-        return jdbcTemplate.query(sql, new CategoryRowMapper());
+        String sql = "SELECT *, is_active AS active, is_deleted AS deleted FROM categories WHERE is_deleted = 0 AND is_active = 1";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
     }
 
     // Lấy danh mục (cho admin)
     public List<Category> findAll() {
-        String sql = "SELECT * FROM categories";
-        return jdbcTemplate.query(sql, new CategoryRowMapper());
+        String sql = "SELECT *, is_active AS active, is_deleted AS deleted FROM categories";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
     }
 
     // Add category
